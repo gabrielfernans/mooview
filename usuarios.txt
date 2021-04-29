@@ -1,0 +1,5 @@
+[Usuario {login = "daniel", filmesAssistidos = [("sniper americano"), 9.6], listaDesejo = []},
+ Usuario {login = "erick", filmesAssistidos = [], listaDesejo = []},
+ Usuario {login = "nathan", filmesAssistidos = [], listaDesejo = ["guerra ao terror"]},
+ Usuario {login = "gabriel", filmesAssistidos = [], listaDesejo = ["frozen", "moana"]},
+ ]

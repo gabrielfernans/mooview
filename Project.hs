@@ -1,82 +1,138 @@
----- : UNIVERSIDADE FEDERAL DE CAMPINA GRANDE - UFCG 
----- : UNIDADE ACADÊMICA DE SISTEMAS E COMPUTAÇÃO
----- : PARADIGMAS DE LINGUAGENS DE PROGRAMAÇÃO
----- : PROFESSOR: EVERTON LEANDRO GALDINO ALVES
 
----- : PROJETO FINAL - PARADIGMA FUNCIONAL
+import System.IO
+import System.Directory
 
----- : INTEGRANTES: 
----- :            DANIEL DE MATOS FIGUEREDO 
----- :            ERICK MORAIS DE SENA 
----- :            GABRIEL FERNANDES DA COSTA 
----- :            NATAN VINICIUS DA SILVA LUCENA 
-
----- : PLATAFORMA DE AVALIAÇÃO E RECOMENDAÇÃO DE FILMES
-
-module Project where
 
 data Usuario = Usuario { login :: String
-                       , filmesAssistidos :: [(Filme, Double)]
-                       , listaDesejo :: [Filme]
-                       } deriving Show
+                       , filmesAssistidos :: [(String, Double)]
+                       , listaDesejo :: [String]
+                       } deriving (Eq,Ord,Show,Read)
                     
 data Filme = Filme { titulo :: String
                    , nota :: [Double]
-                   , elenco :: [String]
-                   , diretor :: String
-                   , roteirista :: String
                    , genero :: String
-                   , premios :: [String]
-                   , lancamento :: Int
+				   , elenco :: [String]
+                   , diretor :: String
+                   , data :: String
                    , sinopse :: String
-                   } deriving Show
+       
+                   } deriving (Eq,Ord,Show,Read)
+                   
+                   
+adicionaNota :: Filme->Double->[Double]
+adicionaNota filme avaliacao = nota filme++[(avaliacao)]
 
-avaliarFilme :: String-> String-> Double-> Void
-avaliarFilme nomeUsuario nomeFilme nota = notaFilme ++ [nota]
-    where notaFilme = *buscaCSV*
-        
+atualizaNotaFilme :: String->[Double]->[Filme]->[Filme]
+atualizaNotaFilme nome notas_atualizadas (h:t)
+    |length t==0 && titulo h==nome = [Filme{titulo=nome, nota=notas_atualizadas, genero=genero h, elenco=elenco h, diretor=diretor h,data=data h, sinopse=sinopse h}]
+    |length t==0 = [h]
+    |titulo h==nome = [Filme{titulo=nome, nota=notas_atualizadas, genero=genero h, elenco=elenco h, diretor=diretor h,data=data h, sinopse=sinopse h}]++t
+    |otherwise = [h]++(atualizaNotaFilme nome notas_atualizadas t)
 
-recomendarFilmes :: String-> [(String, String)] 
+adicionarFilmeFilmesAssistidos :: Usuario->(String,Double)->[(String, Double)]
+adicionarFilmeFilmesAssistidos user avaliacao = filmesAssistidos user ++ [avaliacao]
 
+atualizaFilmesAssistidos :: String->[(String,Double)]->[Usuario]->[Usuario]
+atualizaFilmesAssistidos usuario nova_lista (h:t)
+    |length t==0 && login h==usuario = [Usuario{login=usuario, filmesAssistidos=nova_lista, listaDesejo=listaDesejo h}]
+    |length t==0 = [h]
+    |login h==usuario = [Usuario{login=usuario, filmesAssistidos=nova_lista, listaDesejo=listaDesejo h}]++t
+    |otherwise = [h]++(atualizaFilmesAssistidos usuario nova_lista t)
+    
+    
+removerListaDesejo :: [String]->String->[String]
+removerListaDesejo lista filme
+	|length lista==0 = []
+	|length t==0 && h==filme = []
+	|length t==0 = [h]
+	|h==filme = t
+	|otherwise=[h]++(removerListaDesejo t filme)
+	
+	where
+		(h:t)=lista
 
+adicionarFilmeListaDesejo :: Usuario->String->[String]
+adicionarFilmeListaDesejo user titulo = listaDesejo user ++ [titulo]
 
-consultarPorDiretor :: String -> [Filme]
-consultarPorDiretor direçao = [filmesDoDiretor | filmesDoDiretor <- filmes, diretor filmesDiretor = direçao]
-where
-    filmes = *buscaCSV*
+atualizaDesejos :: String->[String]->[Usuario]->[Usuario]
+atualizaDesejos usuario nova_lista (h:t)
+    |length t==0 && login h==usuario = [Usuario{login=usuario, filmesAssistidos=filmesAssistidos h, listaDesejo=nova_lista}]
+    |length t==0 = [h]
+    |login h==usuario = [Usuario{login=usuario, filmesAssistidos=filmesAssistidos h, listaDesejo=nova_lista}]++t
+    |otherwise = [h]++(atualizaDesejos usuario nova_lista t)
+    
+getListaDeDesejo :: Usuario -> [String]
+getListaDeDesejo usuario = listaDesejo usuario
+    
+getListaAssistidos :: Usuario -> [(String,Double)]
+getListaAssistidos usuario = filmesAssistidos usuario
 
-consultarPorAtor :: String -> [Filme]
-consultarPorAtor ator = [filmesComAtor | filmesComAtor <- filmes, elem ator (elenco filmes)]
-where
-    filmes = *buscaCSV*
-consultarPorGenero :: String -> [Filme]
-consultarPorGenero generoFilme = [filmesPorGenero | filmesPorGenero <- filmes, genero filme = generoFilme]
-where
-    filmes = *buscaCSV*
+consultaPorGenero :: String->[Filme]-> [Filme]
+consultaPorGenero generoFilme filmes = [filmesPorGenero | filmesPorGenero <- filmes, genero filmesPorGenero == generoFilme]
 
-getFilme :: String -> Filme
-getFilme titulo = [filmePorTitulo | filmePorTitulo <- filmes, titulo == titulo filmes)] !! 0
-where
-    filmes = *buscaCSV*
+consultaPorDiretor :: String->[Filme]-> [Filme]
+consultaPorDiretor direcao filmes = [filmesDoDiretor | filmesDoDiretor <- filmes, diretor filmesPorDiretor == direcao]
 
-notaMediaFilme :: [Double] -> Double
-notaMediaFilme notas = (somatorioDeNotas notas) / length notas
+consultaPorAtor :: String -> [Filme] -> [Filme]
+consultaPorAtor ator filmes = [filmesComAtor | filmesComAtor <- filmes, elem ator (elenco filmesComAtor)]
 
-somatorioDeNotas :: [Double] -> Double
-somatorioDeNotas [] = 0
-somatorioDeNotas (h : t) = h + somatorioDeNotas t
+getFilme :: String ->[Filme]->Filme
+getFilme nome filmes= [filmePorTitulo | filmePorTitulo <- filmes, nome == titulo filmePorTitulo] !! 0
 
+comp :: (String, Double)->(String,Double)->Int
+comp (x,y) (a,b)
+	|y>=b = 1
+	|otherwise = 0 
+
+sortAssistidos :: [(String, Double)]->[(String,Double)]
+sortAssistidos (h:t)
+    |length t==0 =[h]
+    |comp h (maiorAssistidos t)==1 = [h]++(sortAssistidos t)
+    |otherwise = [maiorAssistidos t]++sortAssistidos (swapAssistidos t h (maiorAssistidos t))
+    
+    
+    
+maiorAssistidos:: [(String,Double)]->(String,Double)
+maiorAssistidos (h:t)
+    |length t==0=h
+    |comp h (maiorAssistidos t)==1 = h
+    |otherwise = maiorAssistidos t
+	
+	
+swapAssistidos:: [(String,Double)]->(String,Double)->(String,Double)->[(String,Double)]
+swapAssistidos ((a,b):t) (insere,x) (remove,y)
+	|length t==0 && a==remove = [(insere,x)] 
+    |length t==0=[(a,b)]
+    |a==remove=[(insere,x)]++t
+    |otherwise = [(a,b)]++swapAssistidos t (insere,x) (remove,y)
+
+toLista :: [(String, Double)]->[Filme]->[Filme]
+toLista ((a,b):t) filmes
+	|length t==0=[filmeFromTitulo a filmes]
+	|otherwise=[filmeFromTitulo a filmes]++toLista t filmes
+	
+filmeFromTitulo :: String->[Filme]->Filme
+filmeFromTitulo tit (h:t)
+	|titulo h==tit=h
+	|otherwise = filmeFromTitulo tit t
+
+recomendacaoSistema :: Usuario-> [Filme]->[Filme] 
+recomendacaoSistema usuario filmes 
+	|length (filmesAssistidos usuario)==0 = []
+	|otherwise = recomendarFilmes (sort filmes) (toLista (filmesAssistidos usuario) filmes) (getGeneros ( toLista(sortAssistidos (filmesAssistidos usuario)) filmes) []) 10
+	
 
 assistiuFilme:: Filme->[Filme]->Int
 assistiuFilme filme (h:t)
-    |nome filme==nome h=1
+    |titulo filme==titulo h=1
     |length t==0 = 0
     |otherwise=assistiuFilme filme t
     
 getGeneros:: [Filme]->[String]->[String]
 getGeneros (h:t) escolhidos
+	|length escolhidos==3 = escolhidos
+	|length t==0 && jaEscolheu (genero h) (escolhidos)==0 = escolhidos++[genero h]
     |length t==0=escolhidos
-    |length escolhidos==3 = escolhidos
     |length escolhidos==0 = getGeneros (t) (escolhidos++[genero h])
     |jaEscolheu (genero h) (escolhidos)==0 = getGeneros (t) (escolhidos++[genero h])
     |otherwise = getGeneros (t) (escolhidos)
@@ -90,6 +146,7 @@ jaEscolheu genero (h:t)
 recomendarFilmes:: [Filme]->[Filme]->[String]->Int->[Filme]
 recomendarFilmes (h:t) assistidos generosPreferidos qtd
     |qtd==0=[]
+    |length t==0 && (assistiuFilme h assistidos == 0) && (jaEscolheu (genero h) (generosPreferidos)==1)=[h]
     |length t==0=[]
     |(assistiuFilme h assistidos == 0) && (jaEscolheu (genero h) (generosPreferidos)==1)=[h]++(recomendarFilmes t assistidos generosPreferidos (qtd-1))
     |otherwise = recomendarFilmes t assistidos generosPreferidos qtd
@@ -98,7 +155,7 @@ recomendarFilmes (h:t) assistidos generosPreferidos qtd
 sort:: [Filme]->[Filme]
 sort (h:t)
     |length t==0 =[h]
-    |nota h>=nota (maior t)=[h]++(sort t)
+    |notaMediaFilme h>=notaMediaFilme (maior t)=[h]++(sort t)
     |otherwise = [maior t]++sort (swap t h (maior t))
     
     
@@ -106,55 +163,261 @@ sort (h:t)
 maior:: [Filme]->Filme
 maior (h:t)
     |length t==0=h
-    |nota h>= (nota (maior t)) = h
+    |notaMediaFilme h>= (notaMediaFilme (maior t)) = h
     |otherwise = maior t
 	
 	
 swap:: [Filme]->Filme->Filme->[Filme]
 swap (h:t) insere remove
-	|length t==0 && nome h==nome remove = [insere] 
+	|length t==0 && titulo h==titulo remove = [insere] 
     |length t==0=[h]
-    |nome h==nome remove=[insere]++t
+    |titulo h==titulo remove=[insere]++t
     |otherwise = [h]++swap t insere remove
 	
 
+notaMediaFilme :: Filme -> Double
+notaMediaFilme filme
+	|length (nota filme) == 0 = 0
+	|otherwise = (somatorioDeNotas (nota filme)) / (toDouble(length (nota filme)))
+
+somatorioDeNotas :: [Double] -> Double
+somatorioDeNotas [] = 0
+somatorioDeNotas (h : t) = h + somatorioDeNotas t
 
 
-getListaDeDesejo :: String -> 
+toDouble :: Int->Double
+toDouble a
+	|a==0=0
+	|otherwise=(toDouble (a-1))+1.0
+
+getUsuarioFromLogin :: String->[Usuario]->Usuario
+getUsuarioFromLogin x (h:t)
+	|x==login h = h
+	|length t==0 = Usuario "" [] []
+	|otherwise = getUsuarioFromLogin x t
+
+normalizandoFilmes :: [Filme] -> String
+normalizandoFilmes [] = ""
+normalizandoFilmes (h:t) = "Titulo: " ++ titulo h ++ " Sinopse: " ++ sinopse h ++ "\n" ++ normalizandoFilmes t
+
+normalizandoFilme :: Filme -> String
+normalizandoFilme filme = "Titulo: " ++ titulo filme ++ " Nota: " ++ notaMediaFilme (nota h) ++ " Genero: " genero filme ++ "\n" ++ "Elenco: " ++ elenco filme ++ " Diretor: " ++ diretor filme ++ " Data: " ++ data filme ++ "\n" ++ "Sinopse: " ++ sinopse filme
+	
+
+	
+main :: IO()
+main = do
+	entrada
     
-pegaUsusario :: String -> Usuario
-pegausuario login = [usuario | usuario <- usuarios, elem login (primeiroNome usuarios)] !! 0
-where
-    usuarios = *buscaCSV*
 
-menu :: IO()
-menu = do
-    putStrn "I - Avaliar Filme"
-    putStrn "II - Recomendar Filme"
-    putStrn "III - Consultar Filme por Ator"
-    putStrn "IV - Consultar Filme por Diretor"
-    putStrn "V - Consultar Filme por Titulo"
-    putStrn "VI - Consultar Filme por Genero"
-    putStrn "VII - Marcar Filme como Assistido"
-    putStrn "VIII - Consultar Minha Lista de Desejos"
-    putStrn "IX - Adicionar Filme a Minha Lista de Desejos"
-    putStrn "X - Remover Filme da Minha Lista de Desejos"
-    putStrn "EXIT - Sair do programa\n"
-    putStrn "Opcao: "
+entrada :: IO()
+entrada=do
+	putStrLn "1 - Fazer login: "
+	putStrLn "2 - Fazer cadastro: "
+	putStrLn "\nOpcao: "
+	opcao <- getLine
+	opcaoEntrada (read opcao)
+	
+opcaoEntrada :: Int->IO()
+opcaoEntrada opcao
+	|opcao == 1 = do{logar}
+	|otherwise = do{cadastrar}
+	
+logar :: IO()
+logar=do
+	putStrLn "Digite seu usuario: "
+	usuario<-getLine
+	
+	
+	menu (usuario)
+
+
+cadastrar :: IO()
+cadastrar=do
+	putStrLn "Digite seu novo usuario: "
+	usuario<-getLine
+	
+	usuarios_arquivados<-readFile "usuarios.txt"
+	let usuarios=read usuarios_arquivados :: [Usuario]
+	let usuarios_atualizados=Usuario usuario [] []
+	
+	removeFile "usuarios.txt"
+	
+	
+	appendFile "usuarios.txt" (show (usuarios++[usuarios_atualizados]))
+	
+	print("Usuario cadastrado com sucesso")
+	
+	entrada
+
+menu :: String -> IO()
+menu usuario = do
+    putStrLn "1 - Avaliar Filme"
+    putStrLn "2 - Ver Recomendacoes do Sistema"
+    putStrLn "3 - Consultar Filme por Ator"
+    putStrLn "4 - Consultar Filme por Diretor"
+    putStrLn "5 - Consultar Filme por Titulo"
+    putStrLn "6 - Consultar Filme por Genero"
+    putStrLn "7 - Consultar Lista de Desejos"
+    putStrLn "8 - Adicionar Filme a Minha Lista de Desejos"
+    putStrLn "9 - Consultar Lista de Filme Assistidos"
+    putStrLn "0 - Sair do programa\n"
+    putStrLn "Opcao: "
     opcao <- getLine
-    minhaOpcao opcao
+    minhaOpcao usuario (read opcao) 
 
-minhaOpcao :: String-> IO()
-minhaOpcao opcao =
-                    | opcao == "I" = avaliarFilme 
-                    | opcao == "II" = recomendarFilmes   
-                    | opcao == "III" = consultarPorAtor
-                    | opcao == "IV" = consultarPorDiretor  
-                    | opcao == "V" = consultarPorTitulo 
-                    | opcao == "VI" = consultarPorGenero 
-                    | opcao == "VII" = marcarComoAssistido 
-                    | opcao == "VIII" = consultarListaDesejo 
-                    | opcao == "IX" = adicionarFilmeListaDesejo 
-                    | opcao == "X" = removerFilmeListaDesejo 
-                    | opcao == "EXIT" = putStrn "Saindo..." 
-                    | otherwise = do {putStrn "Opcao invalida!"; menu}
+minhaOpcao :: String->Int-> IO()
+minhaOpcao usuario opcao
+    | opcao == 1 = do{avaliarFilme usuario} 
+    | opcao == 2 = do{recomendacaoFilmes usuario}  
+    | opcao == 3 = do{consultarPorAtor usuario}
+    | opcao == 4 = do{consultarPorDiretor usuario}  
+    | opcao == 5 = do{consultarPorTitulo usuario}  
+    | opcao == 6 = do{consultarPorGenero usuario}   
+    | opcao == 7 = do{consultarListaDesejo usuario}
+    | opcao == 8 = do{adicionarListaDesejo usuario} 
+    | opcao == 9 = do{consultarListaAssistidos usuario} 
+    | opcao == 0 = do {putStrLn "Saindo..."; entrada} 
+    | otherwise = do {putStrLn "Opcao invalida!"; menu usuario}
+
+
+avaliarFilme :: String -> IO()
+avaliarFilme usuario=do
+    putStrLn "Titulo: "
+    filme<-getLine
+    putStrLn "Nota: "
+    avaliacao<-getLine
+    usuarios_arquivados<-readFile "usuarios.txt"
+    let usuarios=read usuarios_arquivados :: [Usuario]
+    let current_user=getUsuarioFromLogin usuario usuarios
+    let assistidosatualizada=adicionarFilmeFilmesAssistidos current_user (filme, read avaliacao)
+    let usuarios_atualizados = atualizaFilmesAssistidos usuario assistidosatualizada usuarios
+  
+    let desejosAtualizada = removerListaDesejo (listaDesejo current_user) filme
+    let usuarios_final = atualizaDesejos usuario desejosAtualizada usuarios_atualizados
+    removeFile "usuarios.txt"
+    appendFile "usuarios.txt" (show (usuarios_final))
+    
+    filmes_arquivados<-readFile "filmes.txt"
+    let filmes = read filmes_arquivados :: [Filme]
+    let current_filme=getFilme filme filmes
+	
+    let notas_atualizadas = adicionaNota current_filme (read avaliacao)
+    let filmes_atualizados = atualizaNotaFilme filme notas_atualizadas filmes
+	
+    removeFile "filmes.txt"
+    appendFile "filmes.txt" (show (filmes_atualizados))
+    
+    putStrLn("Filme avaliado com sucesso")
+		
+	
+    menu usuario
+		
+
+recomendacaoFilmes :: String->IO()
+recomendacaoFilmes	usuario=do
+	
+	
+	usuarios_arquivados<-readFile "usuarios.txt"
+	
+	
+	let usuarios=read usuarios_arquivados :: [Usuario]
+	
+	filmes_arquivados<-readFile "filmes.txt"
+	let filmes = read filmes_arquivados :: [Filme]
+	
+	
+	print(normalizandoFilmes (recomendacaoSistema (getUsuarioFromLogin usuario usuarios) filmes))
+	
+	menu usuario
+
+consultarPorAtor :: String->IO()
+consultarPorAtor usuario=do
+    putStrLn "Ator: "
+    ator<-getLine
+    filmes_arquivados<-readFile "filmes.txt"
+    let filmes = read filmes_arquivados :: [Filme]
+    print (normalizandoFilmes (consultaPorAtor ator filmes))
+    menu usuario
+
+consultarPorDiretor :: String->IO()
+consultarPorDiretor usuario=do
+    putStrLn "Diretor: "
+    direcao <- getLine
+    filmes_arquivados<-readFile "filmes.txt"
+    let filmes = read filmes_arquivados :: [Filme]
+    print (normalizandoFilmes (consultaPorDiretor direcao))
+    menu usuario
+
+consultarPorTitulo :: String->IO()
+consultarPorTitulo usuario=do
+    putStrLn "Titulo: "
+    nome<-getLine
+    filmes_arquivados<-readFile "filmes.txt"
+    let filmes = read filmes_arquivados :: [Filme]
+    print (normalizandoFilme (getFilme nome filmes))
+    menu usuario
+
+consultarPorGenero :: String->IO()
+consultarPorGenero usuario=do
+	putStrLn "Genero: "
+	genero<-getLine
+	
+	filmes_arquivados<-readFile "filmes.txt"
+	let filmes = read filmes_arquivados :: [Filme]
+	
+	
+	print (normalizandoFilmes (consultaPorGenero genero filmes))
+	menu usuario
+
+consultarListaDesejo :: String -> IO()
+consultarListaDesejo usuario=do
+    putStrLn("Usuario: ")
+    entrada<-getLine
+    usuarios_arquivados<-readFile "usuarios.txt"
+    let usuarios=read usuarios_arquivados :: [Usuario]
+    let current_user=getUsuarioFromLogin entrada usuarios
+	
+    print(getListaDeDesejo current_user)
+	
+    menu usuario
+
+
+adicionarListaDesejo :: String -> IO()
+adicionarListaDesejo usuario=do
+    putStrLn "Filme: "
+    filme<-getLine
+    usuarios_arquivados<-readFile "usuarios.txt"	
+    let usuarios=read usuarios_arquivados :: [Usuario]
+    let current_user=getUsuarioFromLogin usuario usuarios
+    let lista_nova=adicionarFilmeListaDesejo current_user filme
+    let usuarios_atualizados=atualizaDesejos usuario lista_nova usuarios
+    
+    removeFile "usuarios.txt"
+    
+    
+    appendFile "usuarios.txt" (show (usuarios_atualizados))
+    putStrLn("Lista de desejos atualizada com sucesso")
+    menu usuario
+    
+consultarListaAssistidos :: String -> IO()
+consultarListaAssistidos usuario=do
+    putStrLn("Usuario: ")
+    entrada<-getLine
+    usuarios_arquivados<-readFile "usuarios.txt"
+    let usuarios=read usuarios_arquivados :: [Usuario]
+    let current_user=getUsuarioFromLogin entrada usuarios
+    print(getListaAssistidos current_user)
+    menu usuario
+	
+	
+	
+	
+
+	
+	
+	
+	
+
+	
+
