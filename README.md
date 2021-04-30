@@ -1,4 +1,6 @@
-![MOOVIEW](https://i.imgur.com/zcSrwMi.jpg)
+<p align="center">
+  <img src="https://i.imgur.com/zcSrwMi.jpg" />
+</p>
 
 Projeto da disciplina Paradigmas de Linguagem de Programação.
 
