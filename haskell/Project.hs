@@ -137,11 +137,15 @@ getGeneros (h:t) escolhidos
     |jaEscolheu (genero h) (escolhidos)==0 = getGeneros (t) (escolhidos++[genero h])
     |otherwise = getGeneros (t) (escolhidos)
 
+
 jaEscolheu:: String->[String]->Int
-jaEscolheu genero (h:t)
+jaEscolheu genero lista
+	|length lista==0 = 0
     |h==genero = 1
     |length t==0 = 0
     |otherwise=jaEscolheu genero t
+    where
+		(h:t)=lista
 	
 recomendarFilmes:: [Filme]->[Filme]->[String]->Int->[Filme]
 recomendarFilmes (h:t) assistidos generosPreferidos qtd
@@ -220,11 +224,13 @@ slogan =  "---------------------------------------------------------------------
 	
 main :: IO()
 main = do
+	putStrLn slogan
 	entrada
     
 
 entrada :: IO()
 entrada=do
+
 	putStrLn "1 - Fazer login: "
 	putStrLn "2 - Fazer cadastro: "
 	putStrLn "\nOpcao: "
