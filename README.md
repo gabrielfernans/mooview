@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://i.imgur.com/zcSrwMi.jpg" />
+  <img src="https://i.imgur.com/zcSrwMi.jpg" height="170px"/>
 </p>
 
 Projeto da disciplina Paradigmas de Linguagem de Programação.
