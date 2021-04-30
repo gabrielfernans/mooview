@@ -19,17 +19,11 @@
 ## Cada filme terá as seguintes informações:
 
 - Nome;
-
 - Nota (média das notas dos usuários);
-
 - Elenco;
-
 - Diretor;
-
 - Gênero;
-
 - Data de lançamento;
-
 - Sinopse.
 
 ## Integrantes:
