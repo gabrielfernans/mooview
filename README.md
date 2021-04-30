@@ -2,7 +2,7 @@
   <img src="https://i.imgur.com/zcSrwMi.jpg" height="170px"/>
 </p>
 
-## Projeto da disciplina Paradigmas de Linguagem de Programação.
+## Projeto da disciplina Paradigmas de Linguagem de Programação - 2020.1e
 
  O sistema é uma espécie de rede social colaborativa para cinéfilos, onde há funcionalidades de avaliação, recomendação e consulta de filmes e séries.
 
