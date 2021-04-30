@@ -13,7 +13,7 @@ data Filme = Filme { titulo :: String
                    , genero :: String
 				   , elenco :: [String]
                    , diretor :: String
-                   , data :: String
+                   , date :: String
                    , sinopse :: String
        
                    } deriving (Eq,Ord,Show,Read)
@@ -24,9 +24,9 @@ adicionaNota filme avaliacao = nota filme++[(avaliacao)]
 
 atualizaNotaFilme :: String->[Double]->[Filme]->[Filme]
 atualizaNotaFilme nome notas_atualizadas (h:t)
-    |length t==0 && titulo h==nome = [Filme{titulo=nome, nota=notas_atualizadas, genero=genero h, elenco=elenco h, diretor=diretor h,data=data h, sinopse=sinopse h}]
+    |length t==0 && titulo h==nome = [Filme{titulo=nome, nota=notas_atualizadas, genero=genero h, elenco=elenco h, diretor=diretor h,date=date h, sinopse=sinopse h}]
     |length t==0 = [h]
-    |titulo h==nome = [Filme{titulo=nome, nota=notas_atualizadas, genero=genero h, elenco=elenco h, diretor=diretor h,data=data h, sinopse=sinopse h}]++t
+    |titulo h==nome = [Filme{titulo=nome, nota=notas_atualizadas, genero=genero h, elenco=elenco h, diretor=diretor h,date=date h, sinopse=sinopse h}]++t
     |otherwise = [h]++(atualizaNotaFilme nome notas_atualizadas t)
 
 adicionarFilmeFilmesAssistidos :: Usuario->(String,Double)->[(String, Double)]
@@ -71,7 +71,7 @@ consultaPorGenero :: String->[Filme]-> [Filme]
 consultaPorGenero generoFilme filmes = [filmesPorGenero | filmesPorGenero <- filmes, genero filmesPorGenero == generoFilme]
 
 consultaPorDiretor :: String->[Filme]-> [Filme]
-consultaPorDiretor direcao filmes = [filmesDoDiretor | filmesDoDiretor <- filmes, diretor filmesPorDiretor == direcao]
+consultaPorDiretor direcao filmes = [filmesDoDiretor | filmesDoDiretor <- filmes, diretor filmesDoDiretor == direcao]
 
 consultaPorAtor :: String -> [Filme] -> [Filme]
 consultaPorAtor ator filmes = [filmesComAtor | filmesComAtor <- filmes, elem ator (elenco filmesComAtor)]
@@ -201,8 +201,21 @@ normalizandoFilmes [] = ""
 normalizandoFilmes (h:t) = "Titulo: " ++ titulo h ++ " Sinopse: " ++ sinopse h ++ "\n" ++ normalizandoFilmes t
 
 normalizandoFilme :: Filme -> String
-normalizandoFilme filme = "Titulo: " ++ titulo filme ++ " Nota: " ++ notaMediaFilme (nota h) ++ " Genero: " genero filme ++ "\n" ++ "Elenco: " ++ elenco filme ++ " Diretor: " ++ diretor filme ++ " Data: " ++ data filme ++ "\n" ++ "Sinopse: " ++ sinopse filme
+normalizandoFilme filme = "Titulo: " ++ titulo filme ++ " Nota: " ++ show(notaMediaFilme filme) ++ " Genero: " ++ genero filme ++ "\n" ++ "Elenco: " ++ show(elenco filme) ++ " Diretor: " ++ diretor filme ++ " Date: " ++ show(date filme) ++ "\n" ++ "Sinopse: " ++ sinopse filme
 	
+
+slogan:: String
+slogan =  "------------------------------------------------------------------------------|\n"++
+        "                                                                                |\n" ++
+        "  ███       ███  █████████  █████████  ██      ██  ██  ███████  ██          ██  |\n" ++
+        "  ████    █████  ██     ██  ██     ██   ██    ██   ██  ██        ██        ██   |\n" ++
+        "  ██  ██ ██  ██  ██     ██  ██     ██    ██  ██    ██  ████       ██  ██  ██    |\n" ++
+        "  ██   ███   ██  ██     ██  ██     ██     ████     ██  ██          ████████     |\n" ++
+        "  ██         ██  █████████  █████████      ██      ██  ███████      ██  ██      |\n" ++
+        "                                                                                |\n" ++
+        "             UMA PLATAFORMA PARA RECOMENDAÇÃO E AVALIAÇÃO DE FILMES             |\n" ++
+        "                                                                                |\n" ++
+        "--------------------------------------------------------------------------------|\n"
 
 	
 main :: IO()
@@ -327,7 +340,7 @@ recomendacaoFilmes	usuario=do
 	let filmes = read filmes_arquivados :: [Filme]
 	
 	
-	print(normalizandoFilmes (recomendacaoSistema (getUsuarioFromLogin usuario usuarios) filmes))
+	putStrLn(normalizandoFilmes (recomendacaoSistema (getUsuarioFromLogin usuario usuarios) filmes))
 	
 	menu usuario
 
@@ -337,7 +350,7 @@ consultarPorAtor usuario=do
     ator<-getLine
     filmes_arquivados<-readFile "filmes.txt"
     let filmes = read filmes_arquivados :: [Filme]
-    print (normalizandoFilmes (consultaPorAtor ator filmes))
+    putStrLn(normalizandoFilmes (consultaPorAtor ator filmes))
     menu usuario
 
 consultarPorDiretor :: String->IO()
@@ -346,7 +359,7 @@ consultarPorDiretor usuario=do
     direcao <- getLine
     filmes_arquivados<-readFile "filmes.txt"
     let filmes = read filmes_arquivados :: [Filme]
-    print (normalizandoFilmes (consultaPorDiretor direcao))
+    putStrLn(normalizandoFilmes (consultaPorDiretor direcao filmes))
     menu usuario
 
 consultarPorTitulo :: String->IO()
@@ -355,7 +368,7 @@ consultarPorTitulo usuario=do
     nome<-getLine
     filmes_arquivados<-readFile "filmes.txt"
     let filmes = read filmes_arquivados :: [Filme]
-    print (normalizandoFilme (getFilme nome filmes))
+    putStrLn(normalizandoFilme (getFilme nome filmes))
     menu usuario
 
 consultarPorGenero :: String->IO()
@@ -367,7 +380,7 @@ consultarPorGenero usuario=do
 	let filmes = read filmes_arquivados :: [Filme]
 	
 	
-	print (normalizandoFilmes (consultaPorGenero genero filmes))
+	putStrLn(normalizandoFilmes (consultaPorGenero genero filmes))
 	menu usuario
 
 consultarListaDesejo :: String -> IO()
