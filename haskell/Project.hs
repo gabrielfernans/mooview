@@ -208,8 +208,8 @@ normalizandoFilme :: Filme -> String
 normalizandoFilme filme = "Titulo: " ++ titulo filme ++ " Nota: " ++ show(notaMediaFilme filme) ++ " Genero: " ++ genero filme ++ "\n" ++ "Elenco: " ++ show(elenco filme) ++ " Diretor: " ++ diretor filme ++ " Date: " ++ show(date filme) ++ "\n" ++ "Sinopse: " ++ sinopse filme
 	
 
-slogan:: String
-slogan =  "------------------------------------------------------------------------------|\n"++
+intro:: String
+intro =  "------------------------------------------------------------------------------|\n"++
         "                                                                                |\n" ++
         "  ███       ███  █████████  █████████  ██      ██  ██  ███████  ██          ██  |\n" ++
         "  ████    █████  ██     ██  ██     ██   ██    ██   ██  ██        ██        ██   |\n" ++
@@ -221,16 +221,13 @@ slogan =  "---------------------------------------------------------------------
         "                                                                                |\n" ++
         "--------------------------------------------------------------------------------|\n"
 
-	
 main :: IO()
 main = do
-	putStrLn slogan
+	putStrLn intro
 	entrada
-    
 
 entrada :: IO()
 entrada=do
-
 	putStrLn "1 - Fazer login: "
 	putStrLn "2 - Fazer cadastro: "
 	putStrLn "\nOpcao: "
@@ -247,9 +244,7 @@ logar=do
 	putStrLn "Digite seu usuario: "
 	usuario<-getLine
 	
-	
 	menu (usuario)
-
 
 cadastrar :: IO()
 cadastrar=do
@@ -261,7 +256,6 @@ cadastrar=do
 	let usuarios_atualizados=Usuario usuario [] []
 	
 	removeFile "usuarios.txt"
-	
 	
 	appendFile "usuarios.txt" (show (usuarios++[usuarios_atualizados]))
 	
@@ -299,7 +293,6 @@ minhaOpcao usuario opcao
     | opcao == 0 = do {putStrLn "Saindo..."; entrada} 
     | otherwise = do {putStrLn "Opcao invalida!"; menu usuario}
 
-
 avaliarFilme :: String -> IO()
 avaliarFilme usuario=do
     putStrLn "Titulo: "
@@ -329,14 +322,10 @@ avaliarFilme usuario=do
     
     putStrLn("Filme avaliado com sucesso")
 		
-	
     menu usuario
-		
 
 recomendacaoFilmes :: String->IO()
 recomendacaoFilmes	usuario=do
-	
-	
 	usuarios_arquivados<-readFile "usuarios.txt"
 	
 	
@@ -344,7 +333,6 @@ recomendacaoFilmes	usuario=do
 	
 	filmes_arquivados<-readFile "filmes.txt"
 	let filmes = read filmes_arquivados :: [Filme]
-	
 	
 	putStrLn(normalizandoFilmes (recomendacaoSistema (getUsuarioFromLogin usuario usuarios) filmes))
 	
@@ -401,7 +389,6 @@ consultarListaDesejo usuario=do
 	
     menu usuario
 
-
 adicionarListaDesejo :: String -> IO()
 adicionarListaDesejo usuario=do
     putStrLn "Filme: "
@@ -413,7 +400,6 @@ adicionarListaDesejo usuario=do
     let usuarios_atualizados=atualizaDesejos usuario lista_nova usuarios
     
     removeFile "usuarios.txt"
-    
     
     appendFile "usuarios.txt" (show (usuarios_atualizados))
     putStrLn("Lista de desejos atualizada com sucesso")
@@ -428,15 +414,3 @@ consultarListaAssistidos usuario=do
     let current_user=getUsuarioFromLogin entrada usuarios
     print(getListaAssistidos current_user)
     menu usuario
-	
-	
-	
-	
-
-	
-	
-	
-	
-
-	
-
