@@ -244,7 +244,19 @@ logar=do
 	putStrLn "Digite seu usuario: "
 	usuario<-getLine
 	
-	menu (usuario)
+	usuarios_arquivados<-readFile "usuarios.txt"
+	let usuarios = read usuarios_arquivados :: [Usuario]
+	let meuUsuario = getUsuarioFromLogin usuario usuarios :: Usuario
+	
+	if login meuUsuario == "" 
+		then do
+		putStrLn "Login invalido! Cadastre-se primeiro.\n"
+		entrada
+	else do
+		putStr "Bem vindo de volta, "
+		putStr usuario
+		putStrLn "!!!"
+		menu (usuario)
 
 cadastrar :: IO()
 cadastrar=do
@@ -265,6 +277,8 @@ cadastrar=do
 
 menu :: String -> IO()
 menu usuario = do
+    putStrLn "\n------------------------------------------------"
+    putStrLn "---------------------M E N U--------------------"
     putStrLn "1 - Avaliar Filme"
     putStrLn "2 - Ver Recomendacoes do Sistema"
     putStrLn "3 - Consultar Filme por Ator"
@@ -290,42 +304,52 @@ minhaOpcao usuario opcao
     | opcao == 7 = do{consultarListaDesejo usuario}
     | opcao == 8 = do{adicionarListaDesejo usuario} 
     | opcao == 9 = do{consultarListaAssistidos usuario} 
-    | opcao == 0 = do {putStrLn "Saindo..."; entrada} 
+    | opcao == 0 = do {putStrLn "Saindo...\n"} 
     | otherwise = do {putStrLn "Opcao invalida!"; menu usuario}
 
 avaliarFilme :: String -> IO()
 avaliarFilme usuario=do
     putStrLn "Titulo: "
     filme<-getLine
-    putStrLn "Nota: "
-    avaliacao<-getLine
-    usuarios_arquivados<-readFile "usuarios.txt"
-    let usuarios=read usuarios_arquivados :: [Usuario]
-    let current_user=getUsuarioFromLogin usuario usuarios
-    let assistidosatualizada=adicionarFilmeFilmesAssistidos current_user (filme, read avaliacao)
-    let usuarios_atualizados = atualizaFilmesAssistidos usuario assistidosatualizada usuarios
-  
-    let desejosAtualizada = removerListaDesejo (listaDesejo current_user) filme
-    let usuarios_final = atualizaDesejos usuario desejosAtualizada usuarios_atualizados
-    removeFile "usuarios.txt"
-    appendFile "usuarios.txt" (show (usuarios_final))
     
     filmes_arquivados<-readFile "filmes.txt"
     let filmes = read filmes_arquivados :: [Filme]
-    let current_filme=getFilme filme filmes
-	
-    let notas_atualizadas = adicionaNota current_filme (read avaliacao)
-    let filmes_atualizados = atualizaNotaFilme filme notas_atualizadas filmes
-	
-    removeFile "filmes.txt"
-    appendFile "filmes.txt" (show (filmes_atualizados))
     
-    putStrLn("Filme avaliado com sucesso")
-		
-    menu usuario
+    if filmeExiste filme filmes
+    	then do
+    	    putStrLn "Nota: "
+            avaliacao<-getLine
+    	    let current_filme = getFilme filme filmes
+	    usuarios_arquivados<-readFile "usuarios.txt"
+	    let usuarios=read usuarios_arquivados :: [Usuario]
+	    let current_user=getUsuarioFromLogin usuario usuarios
+	    let assistidosatualizada=adicionarFilmeFilmesAssistidos current_user (filme, read avaliacao)
+	    let usuarios_atualizados = atualizaFilmesAssistidos usuario assistidosatualizada usuarios
+	    
+	    let desejosAtualizada = removerListaDesejo (listaDesejo current_user) filme
+	    let usuarios_final = atualizaDesejos usuario desejosAtualizada usuarios_atualizados
+	    removeFile "usuarios.txt"
+	    appendFile "usuarios.txt" (show (usuarios_final))
+	    
+	    let notas_atualizadas = adicionaNota current_filme (read avaliacao)
+	    let filmes_atualizados = atualizaNotaFilme filme notas_atualizadas filmes
+	    
+	    removeFile "filmes.txt"
+	    appendFile "filmes.txt" (show (filmes_atualizados))
+	    
+	    putStrLn("Filme avaliado com sucesso")
+	    
+	    menu usuario
+    	
+    	else do
+	   putStrLn("Tal filme nao existe")
+    	   menu usuario
+
+filmeExiste :: String ->[Filme]->Bool
+filmeExiste nome filmes = length [filmePorTitulo | filmePorTitulo <- filmes, nome == titulo filmePorTitulo] /= 0 
 
 recomendacaoFilmes :: String->IO()
-recomendacaoFilmes	usuario=do
+recomendacaoFilmes usuario = do
 	usuarios_arquivados<-readFile "usuarios.txt"
 	
 	
@@ -344,8 +368,14 @@ consultarPorAtor usuario=do
     ator<-getLine
     filmes_arquivados<-readFile "filmes.txt"
     let filmes = read filmes_arquivados :: [Filme]
-    putStrLn(normalizandoFilmes (consultaPorAtor ator filmes))
-    menu usuario
+    
+    if length(consultaPorAtor ator filmes) == 0 
+    	then do
+    		putStrLn "Ator nao encontrado"
+    		menu usuario
+    else do
+    	putStrLn(normalizandoFilmes (consultaPorAtor ator filmes))
+    	menu usuario
 
 consultarPorDiretor :: String->IO()
 consultarPorDiretor usuario=do
@@ -362,7 +392,13 @@ consultarPorTitulo usuario=do
     nome<-getLine
     filmes_arquivados<-readFile "filmes.txt"
     let filmes = read filmes_arquivados :: [Filme]
-    putStrLn(normalizandoFilme (getFilme nome filmes))
+    
+    if filmeExiste nome filmes
+    	then do
+    	putStrLn(normalizandoFilme (getFilme nome filmes))
+    	
+    else do
+    	putStrLn "Não existe filme com esse titulo!"
     menu usuario
 
 consultarPorGenero :: String->IO()
@@ -373,8 +409,13 @@ consultarPorGenero usuario=do
 	filmes_arquivados<-readFile "filmes.txt"
 	let filmes = read filmes_arquivados :: [Filme]
 	
+	if length (consultaPorGenero genero filmes) == 0 
+	    then do
+	    putStrLn "Genero inexistente!"
 	
-	putStrLn(normalizandoFilmes (consultaPorGenero genero filmes))
+	else do
+	    putStrLn(normalizandoFilmes (consultaPorGenero genero filmes))
+	
 	menu usuario
 
 consultarListaDesejo :: String -> IO()
@@ -393,16 +434,25 @@ adicionarListaDesejo :: String -> IO()
 adicionarListaDesejo usuario=do
     putStrLn "Filme: "
     filme<-getLine
-    usuarios_arquivados<-readFile "usuarios.txt"	
-    let usuarios=read usuarios_arquivados :: [Usuario]
-    let current_user=getUsuarioFromLogin usuario usuarios
-    let lista_nova=adicionarFilmeListaDesejo current_user filme
-    let usuarios_atualizados=atualizaDesejos usuario lista_nova usuarios
     
-    removeFile "usuarios.txt"
+    filmes_arquivados<-readFile "filmes.txt"
+    let filmes = read filmes_arquivados :: [Filme]
     
-    appendFile "usuarios.txt" (show (usuarios_atualizados))
-    putStrLn("Lista de desejos atualizada com sucesso")
+    if not(filmeExiste filme filmes)
+    	then do
+    	putStrLn "Filme inexistente!"
+    
+    else do
+    	usuarios_arquivados<-readFile "usuarios.txt"	
+    	let usuarios=read usuarios_arquivados :: [Usuario]
+    	let current_user=getUsuarioFromLogin usuario usuarios
+    	let lista_nova=adicionarFilmeListaDesejo current_user filme
+    	let usuarios_atualizados=atualizaDesejos usuario lista_nova usuarios
+    
+    	removeFile "usuarios.txt"
+    	appendFile "usuarios.txt" (show (usuarios_atualizados))
+    	putStrLn("Lista de desejos atualizada com sucesso")
+    	
     menu usuario
     
 consultarListaAssistidos :: String -> IO()
