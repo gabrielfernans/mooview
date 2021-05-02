@@ -1,16 +1,9 @@
 import System.IO
 import System.Directory
-
 import View
 import Auth
 import Filme
-
-module Main where
-
-data Usuario = Usuario { login :: String
-                       , filmesAssistidos :: [(String, Double)]
-                       , listaDesejo :: [String]
-                       } deriving (Eq,Ord,Show,Read)
+import Usuario
 
 main :: IO()
 main = do
