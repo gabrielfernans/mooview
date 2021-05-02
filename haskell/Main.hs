@@ -1,39 +1,25 @@
 import System.IO
 import System.Directory
 
+import View
+import Auth
+import Filme
+
+module Main where
+
 data Usuario = Usuario { login :: String
                        , filmesAssistidos :: [(String, Double)]
                        , listaDesejo :: [String]
                        } deriving (Eq,Ord,Show,Read)
-                    
-data Filme = Filme { titulo :: String
-                   , nota :: [Double]
-                   , genero :: String
-				   , elenco :: [String]
-                   , diretor :: String
-                   , date :: String
-                   , sinopse :: String
-       
-                   } deriving (Eq,Ord,Show,Read)
-                  
-intro :: String
-intro =  "-------------------------------------------------------------------------------|\n"++
-         "                                                                                |\n" ++
-         "  ███       ███  █████████  █████████  ██      ██  ██  ███████  ██          ██  |\n" ++
-         "  ████    █████  ██     ██  ██     ██   ██    ██   ██  ██        ██        ██   |\n" ++
-         "  ██  ██ ██  ██  ██     ██  ██     ██    ██  ██    ██  ████       ██  ██  ██    |\n" ++
-         "  ██   ███   ██  ██     ██  ██     ██     ████     ██  ██          ████████     |\n" ++
-         "  ██         ██  █████████  █████████      ██      ██  ███████      ██  ██      |\n" ++
-         "                                                                                |\n" ++
-         "             UMA PLATAFORMA PARA RECOMENDAÇÃO E AVALIAÇÃO DE FILMES             |\n" ++
-         "                                                                                |\n" ++
-         "--------------------------------------------------------------------------------|\n"
+
+main :: IO()
+main = do
+	putStrLn intro
+	entrada
 
 entrada :: IO()
 entrada=do
-	putStrLn "1 - Fazer login: "
-	putStrLn "2 - Fazer cadastro: "
-	putStrLn "\nOpcao: "
+	putStrLn logOption
 	opcao <- getLine
 	opcaoEntrada (read opcao)
 	
@@ -42,13 +28,13 @@ opcaoEntrada opcao
 	|opcao == 1 = do{logar}
     |opcao == 2 = do{cadastrar}
 	|otherwise = do{putStrLn "Opção inválida. Tente novamente"; entrada}
-	
+
 logar :: IO()
 logar = do
 	putStrLn "Digite seu usuario: "
 	usuario <- getLine
 	
-	usuarios_arquivados <- readFile "usuarios.txt"
+	usuarios_arquivados <- readFile "./database/usuarios.txt"
 	let usuarios = read usuarios_arquivados :: [Usuario]
 	let meuUsuario = getUsuarioFromLogin usuario usuarios :: Usuario
 	
@@ -67,37 +53,20 @@ cadastrar = do
 	putStrLn "Digite seu novo usuario: "
 	usuario <- getLine
 	
-	usuarios_arquivados <- readFile "usuarios.txt"
+	usuarios_arquivados <- readFile "./database/usuarios.txt"
 	let usuarios = read usuarios_arquivados :: [Usuario]
 	let usuarios_atualizados = Usuario usuario [] []
 	
-	removeFile "usuarios.txt"
-	appendFile "usuarios.txt" (show (usuarios++[usuarios_atualizados]))
+	removeFile "./database/usuarios.txt"
+	appendFile "./database/usuarios.txt" (show (usuarios++[usuarios_atualizados]))
 	
 	print("Usuario cadastrado com sucesso")
 	
 	entrada
 
-main :: IO()
-main = do
-	putStrLn intro
-	entrada
-
 menu :: String->IO()
 menu usuario = do
-    putStrLn "\n------------------------------------------------"
-    putStrLn "---------------------M E N U--------------------"
-    putStrLn "1 - Avaliar Filme"
-    putStrLn "2 - Ver Recomendacoes do Sistema"
-    putStrLn "3 - Consultar Filme por Ator"
-    putStrLn "4 - Consultar Filme por Diretor"
-    putStrLn "5 - Consultar Filme por Titulo"
-    putStrLn "6 - Consultar Filme por Genero"
-    putStrLn "7 - Consultar Lista de Desejos"
-    putStrLn "8 - Adicionar Filme a Minha Lista de Desejos"
-    putStrLn "9 - Consultar Lista de Filme Assistidos"
-    putStrLn "0 - Sair do programa\n"
-    putStrLn "Opcao: "
+    putStrLn menuView
     opcao <- getLine
     minhaOpcao usuario (read opcao) 
 
@@ -120,7 +89,7 @@ avaliarFilme usuario = do
     putStrLn "Titulo: "
     filme <- getLine
     
-    filmes_arquivados <- readFile "filmes.txt"
+    filmes_arquivados <- readFile "./database/filmes.txt"
     let filmes = read filmes_arquivados :: [Filme]
     
     if filmeExiste filme filmes
@@ -130,7 +99,7 @@ avaliarFilme usuario = do
 
         let current_filme = getFilme filme filmes
 
-        usuarios_arquivados <- readFile "usuarios.txt"
+        usuarios_arquivados <- readFile "./database/usuarios.txt"
 
         let usuarios = read usuarios_arquivados :: [Usuario]
         let current_user = getUsuarioFromLogin usuario usuarios
@@ -140,14 +109,14 @@ avaliarFilme usuario = do
         let desejosAtualizada = removerListaDesejo (listaDesejo current_user) filme
         let usuarios_final = atualizaDesejos usuario desejosAtualizada usuarios_atualizados
 
-        removeFile "usuarios.txt"
-        appendFile "usuarios.txt" (show (usuarios_final))
+        removeFile "./database/usuarios.txt"
+        appendFile "./database/usuarios.txt" (show (usuarios_final))
         
         let notas_atualizadas = adicionaNota current_filme (read avaliacao)
         let filmes_atualizados = atualizaNotaFilme filme notas_atualizadas filmes
         
-        removeFile "filmes.txt"
-        appendFile "filmes.txt" (show (filmes_atualizados))
+        removeFile "./database/filmes.txt"
+        appendFile "./database/filmes.txt" (show (filmes_atualizados))
         
         putStrLn("Filme avaliado com sucesso")
     	
@@ -158,10 +127,10 @@ avaliarFilme usuario = do
 
 recomendacaoFilmes :: String->IO()
 recomendacaoFilmes usuario = do
-	usuarios_arquivados <- readFile "usuarios.txt"
+	usuarios_arquivados <- readFile "./database/usuarios.txt"
 	let usuarios = read usuarios_arquivados :: [Usuario]
 	
-	filmes_arquivados <- readFile "filmes.txt"
+	filmes_arquivados <- readFile "./database/filmes.txt"
 	let filmes = read filmes_arquivados :: [Filme]
 	
 	putStrLn(normalizandoFilmes (recomendacaoSistema (getUsuarioFromLogin usuario usuarios) filmes))
@@ -173,7 +142,7 @@ consultarPorAtor usuario=do
     putStrLn "Ator: "
     ator <- getLine
     
-    filmes_arquivados <- readFile "filmes.txt"
+    filmes_arquivados <- readFile "./database/filmes.txt"
     let filmes = read filmes_arquivados :: [Filme]
     
     if length(consultaPorAtor ator filmes) == 0 
@@ -189,7 +158,7 @@ consultarPorDiretor usuario = do
     putStrLn "Diretor: "
     direcao <- getLine
 
-    filmes_arquivados <- readFile "filmes.txt"
+    filmes_arquivados <- readFile "./database/filmes.txt"
     let filmes = read filmes_arquivados :: [Filme]
     
     putStrLn(normalizandoFilmes (consultaPorDiretor direcao filmes))
@@ -201,7 +170,7 @@ consultarPorTitulo usuario = do
     putStrLn "Titulo: "
     nome <- getLine
 
-    filmes_arquivados <- readFile "filmes.txt"
+    filmes_arquivados <- readFile "./database/filmes.txt"
     
     let filmes = read filmes_arquivados :: [Filme]
     
@@ -218,7 +187,7 @@ consultarPorGenero usuario = do
 	putStrLn "Genero: "
 	genero <- getLine
 	
-	filmes_arquivados <- readFile "filmes.txt"
+	filmes_arquivados <- readFile "./database/filmes.txt"
 	let filmes = read filmes_arquivados :: [Filme]
 	
 	if length(consultaPorGenero genero filmes) == 0 
@@ -234,7 +203,7 @@ consultarListaDesejo usuario = do
     putStrLn("Usuario: ")
     entrada <- getLine
 
-    usuarios_arquivados <- readFile "usuarios.txt"
+    usuarios_arquivados <- readFile "./database/usuarios.txt"
     let usuarios = read usuarios_arquivados :: [Usuario]
     let current_user = getUsuarioFromLogin entrada usuarios
 	
@@ -247,22 +216,22 @@ adicionarListaDesejo usuario=do
     putStrLn "Filme: "
     filme <- getLine
     
-    filmes_arquivados <- readFile "filmes.txt"
+    filmes_arquivados <- readFile "./database/filmes.txt"
     let filmes = read filmes_arquivados :: [Filme]
     
     if not(filmeExiste filme filmes)
     	then do
     	putStrLn "Filme inexistente!"
     else do
-    	usuarios_arquivados <- readFile "usuarios.txt"	
+    	usuarios_arquivados <- readFile "./database/usuarios.txt"	
     	let usuarios = read usuarios_arquivados :: [Usuario]
     	let current_user = getUsuarioFromLogin usuario usuarios
 
     	let lista_nova = adicionarFilmeListaDesejo current_user filme
     	let usuarios_atualizados = atualizaDesejos usuario lista_nova usuarios
     
-    	removeFile "usuarios.txt"
-    	appendFile "usuarios.txt" (show (usuarios_atualizados))
+    	removeFile "./database/usuarios.txt"
+    	appendFile "./database/usuarios.txt" (show (usuarios_atualizados))
     	
         putStrLn("Lista de desejos atualizada com sucesso")
     	
@@ -273,7 +242,7 @@ consultarListaAssistidos usuario = do
     putStrLn("Usuario: ")
     entrada <- getLine
 
-    usuarios_arquivados <- readFile "usuarios.txt"
+    usuarios_arquivados <- readFile "./database/usuarios.txt"
     let usuarios = read usuarios_arquivados :: [Usuario]
     let current_user = getUsuarioFromLogin entrada usuarios
 
