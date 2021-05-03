@@ -25,13 +25,13 @@ cd mooview/haskell
 3. Instale as dependências necessárias
 
 ```
-chmod +x dependencies.sh && ./dependencies.sh
+chmod +x dependencies.sh
 ```
 
 4. Execute o programa
 
 ```
-chmod +x run.sh && ./run.sh
+chmod +x run.sh
 ```
 
 ## Funcionalidades:
