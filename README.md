@@ -19,7 +19,7 @@ git clone https://github.com/gabrielfernans/mooview
 2. Acesse a página [haskell/](./haskell)
 
 ```
-cd projeto-plp/haskell
+cd mooview/haskell
 ```
 
 3. Instale as dependências necessárias
