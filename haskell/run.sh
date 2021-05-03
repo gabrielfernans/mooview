@@ -1,0 +1,1 @@
+ghc -o main Main.hs && ./Main

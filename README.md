@@ -4,7 +4,35 @@
 
 ## Projeto da disciplina Paradigmas de Linguagem de Programação - 2020.1e
 
- O sistema é uma espécie de rede social colaborativa para cinéfilos, onde há funcionalidades de avaliação, recomendação e consulta de filmes e séries.
+O sistema é uma espécie de rede social colaborativa para cinéfilos, onde há funcionalidades de avaliação, recomendação e consulta de filmes e séries.
+
+## Intruções para rodar o programa
+
+### Paradigma Funcional
+
+1. Clone o projeto
+
+```
+git clone https://github.com/gabrielfernans/mooview
+```
+
+2. Acesse a página [haskell/](./haskell)
+
+```
+cd projeto-plp/haskell
+```
+
+3. Instale as dependências necessárias
+
+```
+chmod +x dependencies.sh && ./dependencies.sh
+```
+
+4. Execute o programa
+
+```
+chmod +x run.sh && ./run.sh
+```
 
 ## Funcionalidades:
 
