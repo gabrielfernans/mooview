@@ -1,3 +1,5 @@
+module Filme where
+
 data Filme = Filme { titulo :: String
                    , nota :: [Double]
                    , genero :: String
@@ -7,5 +9,3 @@ data Filme = Filme { titulo :: String
                    , sinopse :: String
        
                    } deriving (Eq,Ord,Show,Read)
-
- 
