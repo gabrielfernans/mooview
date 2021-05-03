@@ -25,7 +25,7 @@ cd mooview/haskell
 3. Rode o comando ghc para executar
 
 ```
-ghc -o main Main.hs
+ghc -o main Main.hs && ./main
 ```
 
 ## Funcionalidades:
