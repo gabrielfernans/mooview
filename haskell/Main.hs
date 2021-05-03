@@ -1,7 +1,6 @@
 import System.IO
 import System.Directory
 import View
-import Auth
 import Filme
 import Usuario
 
@@ -19,7 +18,7 @@ entrada=do
 opcaoEntrada :: Int->IO()
 opcaoEntrada opcao
 	|opcao == 1 = do{logar}
-    |opcao == 2 = do{cadastrar}
+    	|opcao == 2 = do{cadastrar}
 	|otherwise = do{putStrLn "Opção inválida. Tente novamente"; entrada}
 
 logar :: IO()
@@ -154,7 +153,11 @@ consultarPorDiretor usuario = do
     filmes_arquivados <- readFile "./database/filmes.txt"
     let filmes = read filmes_arquivados :: [Filme]
     
-    putStrLn(normalizandoFilmes (consultaPorDiretor direcao filmes))
+    if length(consultaPorDiretor direcao filmes) == 0 
+    	then do
+    	putStrLn "Não existe filme com esse diretor!"   
+    else do
+    	putStrLn(normalizandoFilmes (consultaPorDiretor direcao filmes))
     
     menu usuario
 
