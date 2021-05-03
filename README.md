@@ -16,22 +16,16 @@ O sistema é uma espécie de rede social colaborativa para cinéfilos, onde há 
 git clone https://github.com/gabrielfernans/mooview
 ```
 
-2. Acesse a página [haskell/](./haskell)
+2. Acesse a pasta [haskell/](./haskell)
 
 ```
 cd mooview/haskell
 ```
 
-3. Instale as dependências necessárias
+3. Rode o comando ghc para executar
 
 ```
-chmod +x dependencies.sh
-```
-
-4. Execute o programa
-
-```
-chmod +x run.sh
+ghc -o main Main.hs
 ```
 
 ## Funcionalidades:
