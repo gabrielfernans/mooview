@@ -16,4 +16,4 @@ main :-
     slogan(),
     loading(),
     logOpt(),
-    read(option).
+    read(option),nl.
