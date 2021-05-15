@@ -13,6 +13,7 @@
 :- initialization(main).
 
 main :-
-    slogan(),nl,
+    slogan(),
     loading(),
-    logOpt(),nl.
+    logOpt(),
+    read(option).
