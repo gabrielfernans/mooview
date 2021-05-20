@@ -61,7 +61,6 @@ load3() :- write(" _____________________________________________________________
            write("|                                         o                                 |"),nl,
            write("|___________________________________________________________________________|"),nl.
 
-
 cls() :- write('\33\[2J').
 
 logOpt() :- write(" ___________________________________________________________________________"),nl,
@@ -73,3 +72,21 @@ logOpt() :- write(" ____________________________________________________________
             write("|                                                                           |"),nl,
             write("|     OPCAO:                                                                |"),nl,
             write("|___________________________________________________________________________|"),nl.
+
+menu() :- write(" ___________________________________________________________________________"),nl,
+          write("|                                                                           |"),nl,
+          write("|                                   MENU                                    |"),nl,
+          write("|                                                                           |"),nl,
+          write("|     1. AVALIAR FILME                                                      |"),nl,
+          write("|     2. VER RECOMENDAÇÕES DO SISTEMA                                       |"),nl,
+          write("|     3. CONSULTAR FILME POR ATOR                                           |"),nl,
+          write("|     4. CONSULTAR FILME POR DIRETOR                                        |"),nl,
+          write("|     5. CONSULTAR FILME POR TITULO                                         |"),nl,
+          write("|     6. CONSULTAR FILME POR GENERO                                         |"),nl,
+          write("|     7. CONSULTAR LISTA DE DESEJO                                          |"),nl,
+          write("|     8. ADICIONAR FILME A LISTA DE DESEJO                                  |"),nl,
+          write("|     9. CONSULTAR FILMES ASSISTIDOS                                        |"),nl,
+          write("|     0. SAIR DO PROGRAMA                                                   |"),nl,
+          write("|                                                                           |"),nl,
+          write("|     OPCAO:                                                                |"),nl,
+          write("|___________________________________________________________________________|"),nl.
