@@ -1,1 +1,2 @@
-[Usuario {login = "daniel", filmesAssistidos = [("sniper americano",9.6)], listaDesejo = []},Usuario {login = "erick", filmesAssistidos = [("perdido em marte",9.0),("moana",13.0)], listaDesejo = ["moana"]},Usuario {login = "nathan", filmesAssistidos = [], listaDesejo = ["guerra ao terror"]},Usuario {login = "gabriel", filmesAssistidos = [], listaDesejo = ["frozen","moana"]}]
+erick,["perdido em marte", "moana"],10,[]
+teste,[],["teste"]
