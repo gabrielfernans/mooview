@@ -9,19 +9,19 @@
                 NATAN VINICIUS DA SILVA LUCENA
 */
 
-:- include('View.pl').
+% :- include('View.pl').
 
 /* 
     PARAMETROS
         Usuario(Login, Filmes, Notas, ListaDesejo).
 */
-:- include('Usuario.pl').
+% :- include('Usuario.pl').
 
 /*
     PARAMETROS:
         Filme(Titulo, Notas, Elenco, Diretor, Genero, Lancamento, Sinopse).
 */
-:- include('Filme.pl').
+% :- include('Filme.pl').
 
 :- initialization(main).
 
